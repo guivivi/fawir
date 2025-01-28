@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Guillermo Vinue" />
+
+<meta name="date" content="2025-01-28" />
+
+<title>Football Analysis with R</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Football Analysis with R</h1>
+<h4 class="author">Guillermo Vinue</h4>
+<h4 class="date">2025-01-28</h4>
+
+
+
+<p>This document introduces the functions of the <strong>fawir</strong>
+package for friendly data scraping from PES Master (<a href="https://www.pesmaster.com/" class="uri">https://www.pesmaster.com/</a>), creating some
+visualizations and using a player recruitment algorithm.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># First, load fawir and other packages required:</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(fawir)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span></code></pre></div>
+<div id="friendly-web-scraping" class="section level2">
+<h2>Friendly web scraping</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Prepare the data with the details needed to scrape:</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>df_players_links <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">league =</span> <span class="st">&quot;Premier League&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                               <span class="at">team =</span> <span class="st">&quot;Arsenal&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                               <span class="at">position =</span> <span class="st">&quot;CB&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                               <span class="at">name =</span> <span class="st">&quot;William Saliba&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                               <span class="at">link =</span> <span class="st">&quot;/william-saliba/efootball-2022/player/126689/&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># Prepare the data with the skill definitions:</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>pes_skills <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">english =</span> <span class="fu">c</span>(<span class="st">&quot;Heading&quot;</span>, <span class="st">&quot;Weighted Pass&quot;</span>, <span class="st">&quot;Man Marking&quot;</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                                     <span class="st">&quot;Interception&quot;</span>, <span class="st">&quot;Blocker&quot;</span>, <span class="st">&quot;Aerial Superiority&quot;</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>                                     <span class="st">&quot;Acrobatic Clearance&quot;</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>                         <span class="at">description =</span> <span class="fu">c</span>(<span class="st">&quot;Improve the accuracy of headers&quot;</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                                         <span class="st">&quot;Apply back-spin when playing lofted passes&quot;</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                                         <span class="st">&quot;Stick to chase down an opponent&quot;</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>                                         <span class="st">&quot;Better interception skills&quot;</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>                                         <span class="st">&quot;Player’s chances to block passes and shots&quot;</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>                                         <span class="st">&quot;Player’s chances to win aerial balls&quot;</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>                                         <span class="st">&quot;Clear the ball even from awkward positions&quot;</span>))</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co"># Prepare the data with the AI playing styles:</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>pes_ai <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">english =</span> <span class="st">&quot;Long Ball Expert&quot;</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>                     <span class="at">description =</span> <span class="st">&quot;A player who frequently plays the long ball&quot;</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>url_player <span class="ot">&lt;-</span> df_players_links <span class="sc">%&gt;%</span> <span class="fu">pull</span>(link)</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>url_pes_base <span class="ot">&lt;-</span> <span class="st">&quot;https://www.pesmaster.com&quot;</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>analyst_name <span class="ot">&lt;-</span> <span class="st">&quot;Guillermo Vinue&quot;</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>data_pes <span class="ot">&lt;-</span> <span class="fu">do_scrape_pesmaster</span>(url_player, url_pes_base, df_players_links,</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>                                pes_skills, pes_ai, analyst_name, <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="visualization" class="section level2">
+<h2>Visualization</h2>
+<ol style="list-style-type: decimal">
+<li>Explore leagues and playing styles:</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">do_explore_leagues</span>(pesmaster_sample)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">do_explore_playing_styles</span>(pesmaster_sample)</span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Explore player profiles:</li>
+</ol>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Prepare the data with the abilities related to each position:</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>pesmaster_pos_abi <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">type =</span> <span class="fu">rep</span>(<span class="st">&quot;Goalkeeper&quot;</span>, <span class="dv">6</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>                                <span class="at">ability =</span> <span class="fu">c</span>(<span class="st">&quot;goalkeeping&quot;</span>, <span class="st">&quot;gk_awareness&quot;</span>, <span class="st">&quot;gk_catching&quot;</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                                            <span class="st">&quot;gk_parrying&quot;</span>, <span class="st">&quot;gk_reflexes&quot;</span>, <span class="st">&quot;gk_reach&quot;</span> ))</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>pesmaster_algorithm <span class="ot">&lt;-</span> <span class="fu">do_prepare_profiles</span>(pesmaster_sample, </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>                                           pesmaster_playing_styles, </span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>                                           pesmaster_pos_abi)                                             </span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>                                             </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">do_explore_profiles</span>(pesmaster_algorithm, <span class="st">&quot;Goalkeeper&quot;</span>)</span></code></pre></div>
+<ol start="3" style="list-style-type: decimal">
+<li>Explore texts:</li>
+</ol>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>mystopwords <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">word =</span> <span class="fu">c</span>(<span class="st">&quot;goalkeeper&quot;</span>, <span class="st">&quot;goalkeepers&quot;</span>, <span class="st">&quot;player&quot;</span>, <span class="st">&quot;ball&quot;</span>, <span class="st">&quot;frequently&quot;</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">do_explore_texts</span>(pesmaster_sample, pesmaster_positions, mystopwords)</span></code></pre></div>
+</div>
+<div id="recruitment" class="section level2">
+<h2>Recruitment</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Prepare the scouting report:</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>df0 <span class="ot">&lt;-</span> pesmaster_sample <span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>skills, <span class="sc">-</span>playing_style_ai) <span class="sc">%&gt;%</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">unite</span>(<span class="st">&quot;scouting_report&quot;</span>, <span class="fu">c</span>(characteristics, skills_descr, </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>                             playing_style_ai_descr), <span class="at">sep =</span> <span class="st">&quot;, &quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">scouting_report =</span> <span class="fu">gsub</span>(<span class="st">&quot;, NA&quot;</span>, <span class="st">&quot;&quot;</span>, scouting_report))</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co"># Define the type of player to search for:</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>query <span class="ot">&lt;-</span> <span class="st">&quot;A predatory striker, attacking of 80, kicking power of 72, dribbling of 67&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co"># Run the algorithm:</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">do_player_recruitment</span>(df0, <span class="dv">50</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="fl">0.5</span>, <span class="dv">3</span>, <span class="cn">TRUE</span>, query)</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>res <span class="sc">%&gt;%</span> <span class="fu">select</span>(league, team, name, position)</span></code></pre></div>
+</div>
+<div id="definition-of-playing-styles" class="section level2">
+<h2>Definition of playing styles</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Prepare the data with the abilities related to each position:</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>pesmaster_pos_abi <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">type =</span> <span class="fu">rep</span>(<span class="st">&quot;Goalkeeper&quot;</span>, <span class="dv">6</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>                                <span class="at">ability =</span> <span class="fu">c</span>(<span class="st">&quot;goalkeeping&quot;</span>, <span class="st">&quot;gk_awareness&quot;</span>, <span class="st">&quot;gk_catching&quot;</span>, </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                                            <span class="st">&quot;gk_parrying&quot;</span>, <span class="st">&quot;gk_reflexes&quot;</span>, <span class="st">&quot;gk_reach&quot;</span> ))</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                                             </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>pesmaster_algorithm <span class="ot">&lt;-</span> <span class="fu">do_prepare_profiles</span>(pesmaster_sample, </span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                                           pesmaster_playing_styles, </span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>                                           pesmaster_pos_abi)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a> </span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">do_check_def_playing_styles</span>(pesmaster_playing_styles, pesmaster_sample, pesmaster_algorithm, </span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>                            <span class="fu">c</span>(<span class="st">&quot;Defensive Goalkeeper&quot;</span>, <span class="st">&quot;Offensive Goalkeeper&quot;</span>), <span class="dv">50</span>, <span class="dv">5</span>, <span class="dv">10</span>, </span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>                            <span class="fl">0.5</span>, <span class="dv">10</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>)</span></code></pre></div>
+<div id="information-about-the-session" class="section level3">
+<h3>Information about the session</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.3.3 (2024-02-29)
+## Platform: x86_64-redhat-linux-gnu (64-bit)
+## Running under: Fedora Linux 39 (Workstation Edition)
+## 
+## Matrix products: default
+## BLAS/LAPACK: FlexiBLAS OPENBLAS-OPENMP;  LAPACK version 3.11.0
+## 
+## locale:
+##  [1] LC_CTYPE=es_ES.UTF-8       LC_NUMERIC=C              
+##  [3] LC_TIME=es_ES.UTF-8        LC_COLLATE=es_ES.UTF-8    
+##  [5] LC_MONETARY=es_ES.UTF-8    LC_MESSAGES=es_ES.UTF-8   
+##  [7] LC_PAPER=es_ES.UTF-8       LC_NAME=C                 
+##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=es_ES.UTF-8 LC_IDENTIFICATION=C       
+## 
+## time zone: Europe/Madrid
+## tzcode source: system (glibc)
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## loaded via a namespace (and not attached):
+##  [1] digest_0.6.37     R6_2.5.1          fastmap_1.2.0     xfun_0.50        
+##  [5] cachem_1.1.0      knitr_1.49        htmltools_0.5.8.1 rmarkdown_2.29   
+##  [9] lifecycle_1.0.4   cli_3.6.3         sass_0.4.9        jquerylib_0.1.4  
+## [13] compiler_4.3.3    rstudioapi_0.17.1 tools_4.3.3       evaluate_1.0.1   
+## [17] bslib_0.8.0       yaml_2.3.10       rlang_1.1.4       jsonlite_1.8.9</code></pre>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
