@@ -58,7 +58,6 @@
 #' @importFrom stats sd
 #' @importFrom text2vec itoken word_tokenizer create_vocabulary vocab_vectorizer create_tcm GloVe GlobalVectors
 #' @importFrom utils capture.output
-#' @importFrom RhpcBLASctl blas_set_num_threads omp_set_num_threads
 #'
 #' @export
 
@@ -82,16 +81,12 @@ do_player_recruitment <- function(data, rank_value = 50, skip_grams_window_value
   }
   
   # GloVe algorithm:
-  blas_set_num_threads(1)
-  omp_set_num_threads(1)
   # To avoid reproducibility:
   setThreadOptions(numThreads = 1)
   set.seed(42)
   glove_model <- GlobalVectors$new(rank = rank_value, x_max = x_max_value)
   # To avoid verbose:
-  if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
-    invisible(capture.output({word_vectors <- glove_model$fit_transform(tcm, n_threads = 1)}))
-  }
+  invisible(capture.output({word_vectors <- glove_model$fit_transform(tcm, n_threads = 1)}))
     
   # Compute text embeddings:
   text_embedding <- t(sapply(reports, function(text) get_text_embedding(text, word_vectors)))

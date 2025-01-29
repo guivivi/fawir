@@ -7,8 +7,6 @@ vignette: >
   %\VignetteIndexEntry{Football Analysis with R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{RcppParallel}
-  %\VignetteKeyword{no_install}
 ---
 
 This document introduces the functions of the **fawir** package for friendly data scraping from PES Master (https://www.pesmaster.com/), creating some visualizations and using a player recruitment algorithm.
