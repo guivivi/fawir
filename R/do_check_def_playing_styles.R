@@ -22,15 +22,15 @@
 #' with \code{do_prepare_profiles}.
 #' @param type_player String with the position. Options are Goalkeeper, Defender, Midfielder and Forward.
 #' @param rank_value Number to indicate the desired dimension for the latent vectors. Default 50.
-#' @param skip_grams_window_value Number to indicate the window for term-co-occurence 
+#' @param skip_grams_window_value Number to indicate the window for term-co-occurrence 
 #' matrix construction. Default 5.
 #' @param x_max_value Number to indicate the maximum number of co-occurrences to use in the 
 #' weighting function. Default 10.
 #' @param alpha Number between 0 and 1 to combine text-based cosine similarity 
-#' and numeric similarity into a final similarity score. The closer to 1, the more important 
+#' and numeric similarity into a final similarity score. The closer to 0, the more important 
 #' are the numeric variables. Default 0.7.
 #' @param top_simil Number of potential candidates to return.
-#' @param max_scaling Logical to indicate if the term-co-occurence matrix must be scaled. 
+#' @param max_scaling Logical to indicate if the term-co-occurrence matrix must be scaled. 
 #' This is suggested when there are words that are repeated in most documents. Default FALSE.
 #' @param verbose Should R report information on progress? TRUE or FALSE.
 #' 
@@ -56,7 +56,8 @@
 #'                             0.5, 10, TRUE, TRUE)
 #' }                           
 #'
-#' @importFrom ggplot2 scale_colour_gradient2 scale_y_discrete geom_text theme_minimal
+#' @importFrom ggplot2 scale_colour_gradientn scale_y_discrete geom_text theme_minimal
+#' @importFrom scales rescale
 #'
 #' @export
 
@@ -130,12 +131,14 @@ do_check_def_playing_styles <- function(pesmaster_playing_styles, pesmaster_data
   gg <- ggplot(conf_df %>% filter(!is.na(value)), aes(x = obs, y = pred, color = value)) +
     geom_text(aes(label = value), size = 6) +
     scale_y_discrete(limits = rev) +
-    labs(x = "Observations", y = "Predictions", color = "") +
+    labs(x = "Target playing style", y = "Coincidences for the top 10 predictions", color = "") +
     theme_minimal() +
     theme(axis.text = element_text(size = 12),
           axis.title = element_text(size = 18),
           axis.text.x = element_text(angle = 90, hjust = 1)) +
-    scale_colour_gradient2(limits = c(0, 10), breaks = c(0, 5, 10), labels = c(0, 5, 10))
+    scale_colour_gradientn(limits = c(0, 10), breaks = c(0, 5, 10), labels = c(0, 5, 10),
+                           colours = c("white", "grey40", "black"),  
+                           values = rescale(c(0, 3, 10))) 
   
   return(gg)
 }

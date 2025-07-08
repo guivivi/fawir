@@ -2,7 +2,7 @@
 % Please edit documentation in R/do_player_recruitment.R
 \name{do_player_recruitment}
 \alias{do_player_recruitment}
-\title{Player recruitment}
+\title{Player recruitment algorithm}
 \usage{
 do_player_recruitment(data, rank_value = 50, skip_grams_window_value = 5, 
                       x_max_value = 10, alpha = 0.7, top_simil = 3, 
@@ -14,19 +14,19 @@ It must contain a column called scouting_report with the text descriptions.}
 
 \item{rank_value}{Number to indicate the desired dimension for the latent vectors. Default 50.}
 
-\item{skip_grams_window_value}{Number to indicate the window for term-co-occurence 
+\item{skip_grams_window_value}{Number to indicate the window for term-co-occurrence 
 matrix construction. Default 5.}
 
 \item{x_max_value}{Number to indicate the maximum number of co-occurrences to use in the 
 weighting function. Default 10.}
 
 \item{alpha}{Number between 0 and 1 to combine text-based cosine similarity 
-and numeric similarity into a final similarity score. The closer to 1, the more important 
+and numeric similarity into a final similarity score. The closer to 0, the more important 
 are the numeric variables. Default 0.7.}
 
 \item{top_simil}{Number of potential candidates to return.}
 
-\item{max_scaling}{Logical to indicate if the term-co-occurence matrix must be scaled. 
+\item{max_scaling}{Logical to indicate if the term-co-occurrence matrix must be scaled. 
 This is suggested when there are words that are repeated in most documents. Default FALSE.}
 
 \item{query}{String with the description of a type of player of interest.}

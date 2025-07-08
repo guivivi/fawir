@@ -123,6 +123,13 @@ do_check_def_playing_styles(pesmaster_playing_styles, pesmaster_sample, pesmaste
                             0.5, 10, TRUE, TRUE)
 ```
 
+## Hyperparameter grid performance
+
+```{r grid, eval=FALSE}
+do_explore_grid_param(grid_param_fawir)
+```
+
+
 ### Information about the session
 
 ```{r session info}

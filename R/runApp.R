@@ -1,6 +1,8 @@
 #' Launch the Shiny App
 #'
 #' This function launches the Shiny app included in the package.
+#' A toy data set to play with is available at 
+#' \url{https://www.uv.es/vivigui/docs/data_dashboard.xlsx}.
 #'
 #' @importFrom shiny runApp
 #'

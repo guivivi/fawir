@@ -1,4 +1,4 @@
-#' Player recruitment
+#' Player recruitment algorithm
 #' 
 #' @aliases do_player_recruitment
 #'
@@ -16,15 +16,15 @@
 #' @param data Input data set with the numeric and text variables from a number of players. 
 #' It must contain a column called scouting_report with the text descriptions.
 #' @param rank_value Number to indicate the desired dimension for the latent vectors. Default 50.
-#' @param skip_grams_window_value Number to indicate the window for term-co-occurence 
+#' @param skip_grams_window_value Number to indicate the window for term-co-occurrence 
 #' matrix construction. Default 5.
 #' @param x_max_value Number to indicate the maximum number of co-occurrences to use in the 
 #' weighting function. Default 10.
 #' @param alpha Number between 0 and 1 to combine text-based cosine similarity 
-#' and numeric similarity into a final similarity score. The closer to 1, the more important 
+#' and numeric similarity into a final similarity score. The closer to 0, the more important 
 #' are the numeric variables. Default 0.7.
 #' @param top_simil Number of potential candidates to return.
-#' @param max_scaling Logical to indicate if the term-co-occurence matrix must be scaled. 
+#' @param max_scaling Logical to indicate if the term-co-occurrence matrix must be scaled. 
 #' This is suggested when there are words that are repeated in most documents. Default FALSE.
 #' @param query String with the description of a type of player of interest.
 #' 
@@ -129,6 +129,12 @@ do_player_recruitment <- function(data, rank_value = 50, skip_grams_window_value
   normalized_numeric <- scale(numeric_features)
   
   # Compute numeric similarity:
+  # The following apply() runs numeric_similarity() once per row of normalized_numeric.
+  # This is the same as running a loop for 1 to the number of rows of normalized_numeric,
+  # where in each iteration i, we run: 
+  # numeric_similarity(numeric_constraints_normalized, 
+  #                    normalized_numeric[i,], 
+  #                    rep(1, ncol(numeric_features)))
   data$numeric_similarity <- apply(normalized_numeric, 
                                    1, 
                                    numeric_similarity, 

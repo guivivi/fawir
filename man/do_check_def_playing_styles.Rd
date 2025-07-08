@@ -22,19 +22,19 @@ with \code{do_prepare_profiles}.}
 
 \item{rank_value}{Number to indicate the desired dimension for the latent vectors. Default 50.}
 
-\item{skip_grams_window_value}{Number to indicate the window for term-co-occurence 
+\item{skip_grams_window_value}{Number to indicate the window for term-co-occurrence 
 matrix construction. Default 5.}
 
 \item{x_max_value}{Number to indicate the maximum number of co-occurrences to use in the 
 weighting function. Default 10.}
 
 \item{alpha}{Number between 0 and 1 to combine text-based cosine similarity 
-and numeric similarity into a final similarity score. The closer to 1, the more important 
+and numeric similarity into a final similarity score. The closer to 0, the more important 
 are the numeric variables. Default 0.7.}
 
 \item{top_simil}{Number of potential candidates to return.}
 
-\item{max_scaling}{Logical to indicate if the term-co-occurence matrix must be scaled. 
+\item{max_scaling}{Logical to indicate if the term-co-occurrence matrix must be scaled. 
 This is suggested when there are words that are repeated in most documents. Default FALSE.}
 
 \item{verbose}{Should R report information on progress? TRUE or FALSE.}

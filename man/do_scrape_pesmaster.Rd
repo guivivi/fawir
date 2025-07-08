@@ -19,7 +19,7 @@ do_scrape_pesmaster(url_player, url_pes_base, df_players_links,
 \item{pes_ai}{Data with the AI playing styles.}
 
 \item{analyst_name}{Name to identify the user when doing web scraping. 
-This is a polite way to do web scraping and to certify that the user 
+This is a polite way to do web scraping and certify that the user 
 is working as transparently as possible with a research purpose.}
 
 \item{verbose}{Should R report information on progress? TRUE or FALSE.}
@@ -29,13 +29,13 @@ A data frame with the player data.
 }
 \description{
 Obtain numeric and text descriptions from football players included in 
-the PES Master database (https://www.pesmaster.com/efootball-2022/).
+the PES Master database (\url{https://www.pesmaster.com/efootball-2022/}).
 }
 \note{
 This function is devoted to friendly web scraping. It respects the 
 information provided by the PES Master website:
-https://www.pesmaster.com/robots.txt and 
-https://www.pesmaster.com/privacy-policy/
+\url{https://www.pesmaster.com/robots.txt} and 
+\url{https://www.pesmaster.com/privacy-policy/}
 
 Please be polite and respectful when doing web scraping.
 Also include the command \code{Sys.sleep(x)} to pause between 
